@@ -39,7 +39,6 @@
 #include "cmsis_os.h"
 #include "avs.h"
 
-
 #define LTCD_LINE                   0
 
 
@@ -544,6 +543,10 @@ void platform_Init()
 #endif
 }
 
+extern UART_HandleTypeDef UartHandleChapeau;
+extern ITStatus MsgReceived;
+
+
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle)
 {
@@ -553,6 +556,11 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle)
     {
       tUartWeakCB[a].cb(UartHandle);
     }
+    if(UartHandle == &UartHandleChapeau){
+       /* Set transmission flag: transfer complete */
+       MsgReceived = SET;
+     }
+
   }
 }
 
