@@ -40,6 +40,7 @@
 #include "cmsis_os.h"
 #include "Chapeau.h"
 #include "stdlib.h"
+#include "../Inc/Chapeau_led.h"
 
 #define NB_RETRY_RELEASE_DETECTION 10 /* 10 * 5ms = 50ms */
 
@@ -202,7 +203,7 @@ void service_ChapeauUart_task(void  const * argument)
 }
 /**********************************************/
 
-
+SPI_HandleTypeDef hspi2;
 /** LEDs ***************************************/
 
 void service_ChapeauLed_task(void  const * argument)
@@ -212,6 +213,23 @@ void service_ChapeauLed_task(void  const * argument)
     AVS_TRACE_INFO("start Harry Potter Led thread, and the light goes on");
 
     /* init code */
+    hspi2 = initSPI();
+    uint8_t values[12];
+
+    values[0] = 0x00;//start
+    values[1] = 0x00;//start
+    values[2] = 0x00;//start
+    values[3] = 0x00;//start
+    values[4] = 0x00;
+    values[5] = 0xFF;//B
+    values[6] = 0xFF;//G
+    values[7] = 0x00;//R
+    values[8] = 0xFF;//stop
+    values[9] = 0xFF;//stop
+    values[10] = 0xFF;//stop
+    values[11] = 0xFF;//stop
+
+    HAL_SPI_Transmit(&hspi2,values,12,1000);
     
     while (1) {
         /* loop. Don't forget to use osDelay to allow other tasks to be scedulled */
