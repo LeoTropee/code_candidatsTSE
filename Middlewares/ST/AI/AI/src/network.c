@@ -2,7 +2,7 @@
   ******************************************************************************
   * @file    network.c
   * @author  AST Embedded Analytics Research Platform
-  * @date    Fri Jan 18 11:46:45 2019
+  * @date    Fri Jan 18 11:15:32 2019
   * @brief   AI Tool Automatic Code Generator for Embedded NN computing
   ******************************************************************************
   * @attention
@@ -46,14 +46,14 @@
 #define AI_NET_OBJ_INSTANCE g_network
  
 #undef AI_NETWORK_MODEL_SIGNATURE
-#define AI_NETWORK_MODEL_SIGNATURE     "ca0e6feba5c9197af6ae5e1a95a7b79b"
+#define AI_NETWORK_MODEL_SIGNATURE     "f8fc6649242a4c297b72cd0e9ec21da3"
 
 #ifndef AI_TOOLS_REVISION_ID
 #define AI_TOOLS_REVISION_ID     "(rev-)"
 #endif
 
 #undef AI_TOOLS_DATE_TIME
-#define AI_TOOLS_DATE_TIME   "Fri Jan 18 11:46:45 2019"
+#define AI_TOOLS_DATE_TIME   "Fri Jan 18 11:15:32 2019"
 
 #undef AI_TOOLS_COMPILE_TIME
 #define AI_TOOLS_COMPILE_TIME    __DATE__ " " __TIME__
@@ -98,7 +98,7 @@ AI_STATIC_CONST ai_tensor_chain Output_Layer_nl_chain;   /* Chain #3 */
 AI_STATIC ai_layer_dense Hidden_Layer_layer; /* Layer #0 */
 AI_STATIC ai_layer_nl Hidden_Layer_nl_layer; /* Layer #1 */
 AI_STATIC ai_layer_dense Output_Layer_layer; /* Layer #2 */
-AI_STATIC ai_layer_nl Output_Layer_nl_layer; /* Layer #3 */
+AI_STATIC ai_layer_sm Output_Layer_nl_layer; /* Layer #3 */
 
 
 /**  Arrays declarations section  *********************************************/
@@ -108,11 +108,11 @@ AI_ARRAY_OBJ_DECLARE(
   AI_STATIC)
 AI_ARRAY_OBJ_DECLARE(
   Hidden_Layer_output_array, AI_DATA_FORMAT_FLOAT, 
-  NULL, NULL, 200,
+  NULL, NULL, 64,
   AI_STATIC)
 AI_ARRAY_OBJ_DECLARE(
   Hidden_Layer_nl_output_array, AI_DATA_FORMAT_FLOAT, 
-  NULL, NULL, 200,
+  NULL, NULL, 64,
   AI_STATIC)
 AI_ARRAY_OBJ_DECLARE(
   Output_Layer_output_array, AI_DATA_FORMAT_FLOAT, 
@@ -133,14 +133,14 @@ AI_TENSOR_OBJ_DECLARE(
   AI_STATIC)
 AI_TENSOR_OBJ_DECLARE(
   Hidden_Layer_output,
-  AI_SHAPE_INIT(1, 1, 200, 1),
-  AI_STRIDE_INIT(800, 800, 4, 4),
+  AI_SHAPE_INIT(1, 1, 64, 1),
+  AI_STRIDE_INIT(256, 256, 4, 4),
   &Hidden_Layer_output_array,
   AI_STATIC)
 AI_TENSOR_OBJ_DECLARE(
   Hidden_Layer_nl_output,
-  AI_SHAPE_INIT(1, 1, 200, 1),
-  AI_STRIDE_INIT(800, 800, 4, 4),
+  AI_SHAPE_INIT(1, 1, 64, 1),
+  AI_STRIDE_INIT(256, 256, 4, 4),
   &Hidden_Layer_nl_output_array,
   AI_STATIC)
 AI_TENSOR_OBJ_DECLARE(
@@ -166,26 +166,26 @@ AI_TENSOR_OBJ_DECLARE(
 /* Weight tensor #1 */
 AI_ARRAY_OBJ_DECLARE(
   Hidden_Layer_weights_array, AI_DATA_FORMAT_FLOAT, 
-  NULL, NULL, 156800,
+  NULL, NULL, 50176,
   AI_STATIC)
 
 AI_TENSOR_OBJ_DECLARE(
   Hidden_Layer_weights,
-  AI_SHAPE_INIT(1, 1, 200, 784),
-  AI_STRIDE_INIT(627200, 627200, 3136, 4),
+  AI_SHAPE_INIT(1, 1, 64, 784),
+  AI_STRIDE_INIT(200704, 200704, 3136, 4),
   &Hidden_Layer_weights_array,
   AI_STATIC)
 
 /* Weight tensor #2 */
 AI_ARRAY_OBJ_DECLARE(
   Hidden_Layer_bias_array, AI_DATA_FORMAT_FLOAT, 
-  NULL, NULL, 200,
+  NULL, NULL, 64,
   AI_STATIC)
 
 AI_TENSOR_OBJ_DECLARE(
   Hidden_Layer_bias,
-  AI_SHAPE_INIT(1, 1, 200, 1),
-  AI_STRIDE_INIT(800, 800, 4, 4),
+  AI_SHAPE_INIT(1, 1, 64, 1),
+  AI_STRIDE_INIT(256, 256, 4, 4),
   &Hidden_Layer_bias_array,
   AI_STATIC)
 
@@ -221,7 +221,7 @@ AI_TENSOR_CHAIN_OBJ_DECLARE(
 AI_LAYER_OBJ_DECLARE(
   Hidden_Layer_nl_layer, 0,
   NL_TYPE,
-  nl, forward_sigmoid,
+  nl, forward_tanh,
   &AI_NET_OBJ_INSTANCE, &Output_Layer_layer, AI_STATIC,
   .tensors = &Hidden_Layer_nl_chain, 
 )
@@ -232,13 +232,13 @@ AI_LAYER_OBJ_DECLARE(
 /* Weight tensor #1 */
 AI_ARRAY_OBJ_DECLARE(
   Output_Layer_weights_array, AI_DATA_FORMAT_FLOAT, 
-  NULL, NULL, 2400,
+  NULL, NULL, 768,
   AI_STATIC)
 
 AI_TENSOR_OBJ_DECLARE(
   Output_Layer_weights,
-  AI_SHAPE_INIT(1, 1, 12, 200),
-  AI_STRIDE_INIT(9600, 9600, 800, 4),
+  AI_SHAPE_INIT(1, 1, 12, 64),
+  AI_STRIDE_INIT(3072, 3072, 256, 4),
   &Output_Layer_weights_array,
   AI_STATIC)
 
@@ -286,8 +286,8 @@ AI_TENSOR_CHAIN_OBJ_DECLARE(
 
 AI_LAYER_OBJ_DECLARE(
   Output_Layer_nl_layer, 1,
-  NL_TYPE,
-  nl, forward_sigmoid,
+  SM_TYPE,
+  sm, forward_sm,
   &AI_NET_OBJ_INSTANCE, &Output_Layer_nl_layer, AI_STATIC,
   .tensors = &Output_Layer_nl_chain, 
 )
@@ -296,10 +296,10 @@ AI_LAYER_OBJ_DECLARE(
 AI_NETWORK_OBJ_DECLARE(
   AI_NET_OBJ_INSTANCE,
   AI_BUFFER_OBJ_INIT(AI_BUFFER_FORMAT_U8,
-                     1, 1, 637648, 1,
+                     1, 1, 204080, 1,
                      NULL),
   AI_BUFFER_OBJ_INIT(AI_BUFFER_FORMAT_U8,
-                     1, 1, 852, 1,
+                     1, 1, 308, 1,
                      NULL),
   &input_0_output, &Output_Layer_nl_output,
   &Hidden_Layer_layer, 0)
@@ -323,10 +323,10 @@ ai_bool network_configure_activations(
   Hidden_Layer_output_array.data_start = activations + 0;
   Hidden_Layer_nl_output_array.data = activations + 0;
   Hidden_Layer_nl_output_array.data_start = activations + 0;
-  Output_Layer_output_array.data = activations + 800;
-  Output_Layer_output_array.data_start = activations + 800;
-  Output_Layer_nl_output_array.data = activations + 800;
-  Output_Layer_nl_output_array.data_start = activations + 800;
+  Output_Layer_output_array.data = activations + 256;
+  Output_Layer_output_array.data_start = activations + 256;
+  Output_Layer_nl_output_array.data = activations + 256;
+  Output_Layer_nl_output_array.data_start = activations + 256;
   
   }
   return true;
@@ -347,14 +347,14 @@ ai_bool network_configure_weights(
   Hidden_Layer_weights_array.data = weights + 0;
   Hidden_Layer_weights_array.data_start = weights + 0;
   Hidden_Layer_bias_array.format |= AI_FMT_FLAG_CONST;
-  Hidden_Layer_bias_array.data = weights + 627200;
-  Hidden_Layer_bias_array.data_start = weights + 627200;
+  Hidden_Layer_bias_array.data = weights + 200704;
+  Hidden_Layer_bias_array.data_start = weights + 200704;
   Output_Layer_weights_array.format |= AI_FMT_FLAG_CONST;
-  Output_Layer_weights_array.data = weights + 628000;
-  Output_Layer_weights_array.data_start = weights + 628000;
+  Output_Layer_weights_array.data = weights + 200960;
+  Output_Layer_weights_array.data_start = weights + 200960;
   Output_Layer_bias_array.format |= AI_FMT_FLAG_CONST;
-  Output_Layer_bias_array.data = weights + 637600;
-  Output_Layer_bias_array.data_start = weights + 637600;
+  Output_Layer_bias_array.data = weights + 204032;
+  Output_Layer_bias_array.data_start = weights + 204032;
   
   }
 
@@ -390,7 +390,7 @@ ai_bool ai_network_get_info(
       .api_version            = ai_platform_api_get_version(),
       .interface_api_version  = ai_platform_interface_api_get_version(),
       
-      .n_macc            = 161320,
+      .n_macc            = 51764,
       .n_inputs          = AI_NETWORK_IN_NUM,
       .inputs            = AI_BUFFER_OBJ_INIT(
                               AI_BUFFER_FORMAT_FLOAT,

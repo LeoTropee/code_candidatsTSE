@@ -238,7 +238,7 @@ void redraw(){
     BSP_LCD_SetTextColor(LCD_COLOR_WHITE);
     BSP_LCD_SetBackColor(LCD_COLOR_DARKBLUE);
     BSP_LCD_SetFont(&Font24);
-    BSP_LCD_DisplayStringAt(10, 40, (uint8_t *)"ST Team", LEFT_MODE);
+    BSP_LCD_DisplayStringAt(10, 40, (uint8_t *)" TSE ", LEFT_MODE);
 
     // Display it
     BSP_LCD_SetTextColor(LCD_COLOR_GREEN);
@@ -394,12 +394,25 @@ void service_Chapeau_task(void  const * argument)
                            rotate_bitmap(bitmap, (char *)bitmap_rotated);
                        }
 
+                   // Appel fonction IA
+
                        memset(imageNew, 0, sizeof(image));
                        point_series_on_going = 0;
                        resetTouchInfos();
 
+
                        // redraw the full UI and draw the last drawn symbol
                        redraw();
+
+                       int prediction;
+                       prediction = ai_Predict(bitmap_rotated);
+                       // affichage console
+                       AVS_TRACE_INFO(" Prediction : %i \n", prediction);
+                       // affichage écran
+                       char stringpredic[20];
+                       sprintf(stringpredic, "Prediction = %d ", prediction);
+                       BSP_LCD_DisplayStringAt(210, 40, (uint8_t *)stringpredic , RIGHT_MODE);
+
                        printplot(bitmap);
 
                        osDelay(100); // to avoid multiple detections
