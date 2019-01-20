@@ -41,5 +41,6 @@ void modify_led(uint8_t* leds, int led_number, uint8_t intensity, uint8_t red, u
 void all_led_red(uint8_t* leds);
 void all_led_blue(uint8_t* leds);
 void all_led_green(uint8_t* leds);
+void all_led_yellow(uint8_t* leds);
 
 #endif /* APPLICATION_INC_CHAPEAU_LED_H_ */

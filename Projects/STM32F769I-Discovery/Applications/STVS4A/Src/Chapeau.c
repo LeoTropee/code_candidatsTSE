@@ -78,6 +78,9 @@ TS_StateTypeDef  TS_State = {0};
 
 uint16_t maxX, minX, maxY, minY;
 
+extern uint8_t led[88];
+extern SPI_HandleTypeDef hspi2;
+
 typedef struct point_t
 {
 	uint16_t x;
@@ -377,7 +380,6 @@ void service_ChapeauUart_task(void  const * argument)
 }
 /**********************************************/
 
-SPI_HandleTypeDef* hspi2;
 /** LEDs ***************************************/
 
 void service_ChapeauLed_task(void  const * argument)
@@ -387,15 +389,10 @@ void service_ChapeauLed_task(void  const * argument)
 	AVS_TRACE_INFO("start Harry Potter Led thread, and the light goes on");
 
 	/* init code */
-	uint8_t led[88];
-
-	SPI_HandleTypeDef hspi2;
-	led_spi_init(&hspi2);
-	all_led_green(led);
 	while (1) {
 		/* loop. Don't forget to use osDelay to allow other tasks to be schedulled */
 		HAL_SPI_Transmit(&hspi2, led, 88, 1000);
-		osDelay(50);
+		osDelay(300);
 	}
 }
 
@@ -548,13 +545,14 @@ void service_Chapeau_task(void  const * argument)
 				if ((x1 > 0) && ( x1 < 200) && (y1 > 80) && ( y1 < 180))
 				{
 					AVS_TRACE_INFO("Touch detected : 'Alexa' button\n");
-
+					all_led_yellow(led);
 					AVS_Play_Sound(hInstance, AVS_PLAYSOUND_PLAY, (void *)(uint32_t)pSoundWav, 100);
 
 					/* Starts the capture only if northing occurs on the system ( ie BUSY etc...) */
 					if(AVS_Set_State(hInstance, AVS_STATE_START_CAPTURE) == AVS_OK){
 						/* Capture started and button pressed */
 						//buttonState = TRUE;
+						all_led_blue(led);
 					}
 
 					osDelay(100); // to avoid multiple detections
@@ -562,8 +560,9 @@ void service_Chapeau_task(void  const * argument)
 				{
 					AVS_TRACE_INFO("Touch detected : 'Send' button\n");
 					/* JUST FOR TEST !!!!!!!
-                                                                TO MOVE IN YOUR CODE !!!!!!!!!!!!!!!
+                    TO MOVE IN YOUR CODE !!!!!!!!!!!!!!!
 					 */
+					all_led_blue(led);
 					SendMsgOnUART((uint8_t *)"collaporta");
 					/* Save only if point series is finishedn, users has released the touch
 					 * before pressing the Save area */
@@ -599,11 +598,10 @@ void service_Chapeau_task(void  const * argument)
 					printplot(bitmap);
 
 					osDelay(100); // to avoid multiple detections
-
 				} else if ((x1 > 0) && ( x1 < 200) && (y1 > 380) && ( y1 < 480))
 				{
 					AVS_TRACE_INFO("Touch detected : 'Clear' button\n");
-
+					all_led_green(led);
 					/* Clear only if point series is finished, users has released the touch
 					 * before pressing the Save area */
 					if (point_series_on_going == 1)
