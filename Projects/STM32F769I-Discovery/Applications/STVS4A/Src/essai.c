@@ -5,6 +5,18 @@
 #include "network_data.h"
 #include "avs_base.h"
 
+#define AI_NETWORK_IN_NUM       (1)
+#define AI_NETWORK_IN_1  \
+  AI_BUFFER_OBJ_INIT(AI_BUFFER_FORMAT_FLOAT, 1, 1, 784, 1, NULL)
+#define AI_NETWORK_IN_1_SIZE \
+  (1 * 1 * 784)
+
+#define AI_NETWORK_OUT_NUM      (1)
+#define AI_NETWORK_OUT_1  \
+  AI_BUFFER_OBJ_INIT(AI_BUFFER_FORMAT_FLOAT, 1, 1, 12, 1, NULL)
+#define AI_NETWORK_OUT_1_SIZE \
+  (1 * 1 * 12)
+
 /* Global handle to reference the instantiated NN */
 static ai_handle network = AI_HANDLE_NULL;
 static ai_buffer ai_input[AI_NETWORK_IN_NUM] = { AI_NETWORK_IN_1 };
