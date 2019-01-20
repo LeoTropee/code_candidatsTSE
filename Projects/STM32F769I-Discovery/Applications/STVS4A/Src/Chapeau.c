@@ -41,6 +41,7 @@
 #include "stdlib.h"
 #include "../Inc/Chapeau_led.h"
 #include "Chapeau.h"
+#include <String.h>
 
 /** UART Settings *********************************************/
 
@@ -73,8 +74,48 @@ uint8_t aRxBuffer[RXBUFFERSIZE];
 #define USARTChapeau_IRQHandler                USART6_IRQHandler
 
 #define NB_RETRY_RELEASE_DETECTION 10 /* 10 * 5ms = 50ms */
+enum  etat {attaque,defense};
+enum etat manche = attaque;
 
+
+char sort[][30]={
+		"stupefix",
+		"expelliarmus",
+		"amplificatum",
+		"collaporta",
+		"nox",
+		"rictusempra",
+		"sectumsempra",
+		"epouvantard",
+		"arania",
+		"mangemort"
+		,"detraqueur"
+		,"avada_kedavra"
+};
+
+char contre_sort[][30] = {
+		 "enervatum",
+		 "accio",
+		 "reducto",
+		 "alohomora",
+		 "lumos",
+		 "protego",
+		 "vulnera_sanentur",
+		 "riddikulus",
+		 "arania_exumai",
+		 "expelliarmus",
+		 "expecto_patronum",
+		 "harry_potter"
+};
+int derniereAttaque = 13;
 TS_StateTypeDef  TS_State = {0};
+
+int sortSend = 0;
+
+
+
+
+
 
 uint16_t maxX, minX, maxY, minY;
 
@@ -352,11 +393,13 @@ void service_ChapeauUart_task(void  const * argument)
 			AVS_TRACE_INFO("A message has been received on UART :");
 			/* Create a null-terminated valid string from the received buffer */
 			for(int i=0; i<RXBUFFERSIZE; i++)
-			{
-				if (aRxBuffer[i] == MSG_END_CHAR)
-					aRxBuffer[i] = 0;
-			}
-			AVS_TRACE_INFO("     =>'%s'", aRxBuffer);
+						{
+							if (aRxBuffer[i] == MSG_END_CHAR)
+								aRxBuffer[i] = 0;
+						}
+
+			if(derniereAttaque<11)
+
 
 			// Display it
 			BSP_LCD_SetTextColor(LCD_COLOR_GREEN);
@@ -387,23 +430,23 @@ void service_ChapeauLed_task(void  const * argument)
 	AVS_TRACE_INFO("start Harry Potter Led thread, and the light goes on");
 
 	/* init code */
-	hspi2 = initSPI(hspi2);
-	uint8_t values[12];
-
-	values[0] = 0x00;//start
-	values[1] = 0x00;//start
-	values[2] = 0x00;//start
-	values[3] = 0x00;//start
-	values[4] = 0x00;
-	values[5] = 0xFF;//B
-	values[6] = 0xFF;//G
-	values[7] = 0x00;//R
-	values[8] = 0xFF;//stop
-	values[9] = 0xFF;//stop
-	values[10] = 0xFF;//stop
-	values[11] = 0xFF;//stop
-
-	HAL_SPI_Transmit(hspi2,values,12,1000);
+	//hspi2 = initSPI(hspi2);
+//	uint8_t values[12];
+//
+//	values[0] = 0x00;//start
+//	values[1] = 0x00;//start
+//	values[2] = 0x00;//start
+//	values[3] = 0x00;//start
+//	values[4] = 0x00;
+//	values[5] = 0xFF;//B
+//	values[6] = 0xFF;//G
+//	values[7] = 0x00;//R
+//	values[8] = 0xFF;//stop
+//	values[9] = 0xFF;//stop
+//	values[10] = 0xFF;//stop
+//	values[11] = 0xFF;//stop
+//
+//	HAL_SPI_Transmit(hspi2,values,12,1000);
 
 	while (1) {
 		/* loop. Don't forget to use osDelay to allow other tasks to be scedulled */
@@ -573,10 +616,7 @@ void service_Chapeau_task(void  const * argument)
 				} else if ((x1 > 0) && ( x1 < 200) && (y1 > 180) && ( y1 < 280))
 				{
 					AVS_TRACE_INFO("Touch detected : 'Send' button\n");
-					/* JUST FOR TEST !!!!!!!
-                                                                TO MOVE IN YOUR CODE !!!!!!!!!!!!!!!
-					 */
-					SendMsgOnUART((uint8_t *)"collaporta");
+
 					/* Save only if point series is finishedn, users has released the touch
 					 * before pressing the Save area */
 					if (point_series_on_going == 1)
@@ -608,6 +648,14 @@ void service_Chapeau_task(void  const * argument)
 					sprintf(stringpredic, "Prediction = %d ", prediction);
 					BSP_LCD_DisplayStringAt(210, 40, (uint8_t *)stringpredic , RIGHT_MODE);
 
+					if(manche == attaque)
+					{
+						SendMsgOnUART(sort[prediction]);
+					}
+					else{
+						SendMsgOnUART(contre_sort[prediction]);
+						manche = attaque;
+					}
 					printplot(bitmap);
 
 					osDelay(100); // to avoid multiple detections
