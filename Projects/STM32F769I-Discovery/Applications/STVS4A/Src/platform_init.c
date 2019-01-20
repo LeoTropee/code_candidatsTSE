@@ -543,6 +543,8 @@ void platform_Init()
   GPIO_Config();
 #endif
 }
+extern UART_HandleTypeDef UartHandleChapeau;
+extern ITStatus MsgReceived;
 
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle)
@@ -554,6 +556,12 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle)
       tUartWeakCB[a].cb(UartHandle);
     }
   }
+
+    if(UartHandle == &UartHandleChapeau){
+      /* Set transmission flag: transfer complete */
+      MsgReceived = SET;
+    }
+
 }
 
 
