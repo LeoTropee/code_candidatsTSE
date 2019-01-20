@@ -387,27 +387,15 @@ void service_ChapeauLed_task(void  const * argument)
 	AVS_TRACE_INFO("start Harry Potter Led thread, and the light goes on");
 
 	/* init code */
-	hspi2 = initSPI(hspi2);
-	uint8_t values[12];
+	uint8_t led[88];
 
-	values[0] = 0x00;//start
-	values[1] = 0x00;//start
-	values[2] = 0x00;//start
-	values[3] = 0x00;//start
-	values[4] = 0x00;
-	values[5] = 0xFF;//B
-	values[6] = 0xFF;//G
-	values[7] = 0x00;//R
-	values[8] = 0xFF;//stop
-	values[9] = 0xFF;//stop
-	values[10] = 0xFF;//stop
-	values[11] = 0xFF;//stop
-
-	HAL_SPI_Transmit(hspi2,values,12,1000);
-
+	SPI_HandleTypeDef hspi2;
+	led_spi_init(&hspi2);
+	all_led_green(led);
 	while (1) {
-		/* loop. Don't forget to use osDelay to allow other tasks to be scedulled */
-		osDelay(10);
+		/* loop. Don't forget to use osDelay to allow other tasks to be schedulled */
+		HAL_SPI_Transmit(&hspi2, led, 88, 1000);
+		osDelay(50);
 	}
 }
 

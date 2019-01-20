@@ -71,10 +71,6 @@ static void service_main_task(void  const * argument)
   }
 }
 
-
-
-
-
 int main()
 {
 
